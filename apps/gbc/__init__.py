@@ -16,10 +16,12 @@ try:
     os.chdir(APP_DIR)
 except Exception:
     pass
-if APP_DIR not in sys.path:
-    sys.path.insert(0, APP_DIR)
+while APP_DIR in sys.path:
+    sys.path.remove(APP_DIR)
+sys.path.insert(0, APP_DIR)
 if "/" not in sys.path:
     sys.path.insert(0, "/")
+sys.modules.pop("emu", None)
 
 try:
     badge.mode(HIRES | VSYNC)

@@ -124,33 +124,39 @@ def cpu_step_scanline(st_buf, mem_buf, rom_buf) -> int:
     b1_off: int = st[REG_ROM_B1_OFF]
     div_cnt: int = st[REG_DIV_CNT]
     tima_cnt: int = st[REG_TIMA_CNT]
-    target_cyc: int = 128 if st[REG_DOUBLE_SPD] else 114
+    target_cyc: int = 228 if st[REG_DOUBLE_SPD] else 114
 
     while sl < 154:
-        mem[0x14144] = sl
-        lcdc: int = int(mem[0x14140])
-        stat: int = int(mem[0x14141])
-        lyc: int = int(mem[0x14145])
+        if st[REG_ROM_MISS] == -2:
+            st[REG_ROM_MISS] = -1
+        else:
+            mem[0x14144] = sl
+            lcdc: int = int(mem[0x14140])
+            stat: int = int(mem[0x14141])
+            lyc: int = int(mem[0x14145])
 
-        # Update STAT mode & LY==LYC coincidence flag
-        mode: int = 1 if sl >= 144 else 0
-        coinc: int = 4 if sl == lyc else 0
-        prev_stat: int = stat
-        stat = (stat & 0x78) | coinc | mode | 0x80
-        mem[0x14141] = stat
+            # Update STAT mode & LY==LYC coincidence flag
+            mode: int = 1 if sl >= 144 else 3
+            coinc: int = 4 if sl == lyc else 0
+            stat = (stat & 0x78) | coinc | mode | 0x80
+            mem[0x14141] = stat
 
-        if lcdc & 0x80:
-            if sl == 144:
-                mem[0x1410F] = int(mem[0x1410F]) | 1  # VBlank IF bit 0
-                if stat & 0x10:
+            if lcdc & 0x80:
+                if sl == 144:
+                    mem[0x1410F] = int(mem[0x1410F]) | 1  # VBlank IF bit 0
+                    if stat & 0x10:
+                        mem[0x1410F] = int(mem[0x1410F]) | 2
+                if coinc and (stat & 0x40):
                     mem[0x1410F] = int(mem[0x1410F]) | 2
-            if coinc and (stat & 0x40):
-                mem[0x1410F] = int(mem[0x1410F]) | 2
-            elif sl < 144 and (stat & 0x08):
-                # Mode 0 HBlank STAT interrupt enabled
-                mem[0x1410F] = int(mem[0x1410F]) | 2
+                elif sl < 144 and (stat & 0x08):
+                    # Mode 0 HBlank STAT interrupt enabled
+                    mem[0x1410F] = int(mem[0x1410F]) | 2
 
         while cyc_acc < target_cyc:
+            if sl < 144 and cyc_acc >= (target_cyc >> 1):
+                st_m: int = int(mem[0x14141])
+                if (st_m & 3) != 0:
+                    mem[0x14141] = st_m & 0xFC
             # Check interrupts only when IME or HALT is active
             if ime or halted:
                 if_reg: int = int(mem[0x1410F])
@@ -345,7 +351,7 @@ def cpu_step_scanline(st_buf, mem_buf, rom_buf) -> int:
                             spd: int = st[REG_DOUBLE_SPD] ^ 1
                             st[REG_DOUBLE_SPD] = spd
                             mem[0x1414D] = (spd << 7) | 0x7E
-                            target_cyc = 128 if spd else 114
+                            target_cyc = 228 if spd else 114
                     else:  # JR d8 / JR cc, d8
                         cur_pc = (cur_pc + 1) & 0xFFFF
                         take0: int = 1
@@ -369,7 +375,13 @@ def cpu_step_scanline(st_buf, mem_buf, rom_buf) -> int:
                                         top_op = int(rom[b1_off + (cur_pc - 0x4000)])
                                     elif cur_pc >= 0xFF80:
                                         top_op = int(mem[0x14100 + (cur_pc & 0xFF)])
-                                    if top_op == 0xF0 or top_op == 0xFA:
+                                    if top_op == 0xF0:
+                                        if cyc_acc < (target_cyc >> 1):
+                                            cyc_acc = target_cyc >> 1
+                                            mem[0x14141] = int(mem[0x14141]) & 0xFC
+                                        else:
+                                            cyc_acc = target_cyc
+                                    elif top_op == 0xFA:
                                         cyc_acc = target_cyc
                         else:
                             inst_cyc = 2
@@ -694,8 +706,11 @@ def cpu_step_scanline(st_buf, mem_buf, rom_buf) -> int:
                                     v_cb = v_cb >> 1
                                 reg_f = (0x80 if v_cb == 0 else 0) | (c_cb << 4)
                             if cb_z == 6:
-                                write_ea = hl_cb
-                                write_val = v_cb
+                                if hl_cb == 0xFF55:
+                                    mem[0x14155] = 0xFF
+                                else:
+                                    write_ea = hl_cb
+                                    write_val = v_cb
                             else:
                                 mem[0x14500 + cb_z] = v_cb
                 elif z == 4:
@@ -1563,6 +1578,7 @@ class GBC:
             cpu_step_scanline(st, mem, rom)
             if st[REG_ROM_MISS] >= 0:
                 self._page_in_bank(st[REG_ROM_MISS])
+                st[REG_ROM_MISS] = -2
 
         st[REG_FRAME_COUNT] += 1
 

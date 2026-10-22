@@ -1,0 +1,19 @@
+# Drop your .nes ROM files (Mapper 0 / NROM, Mapper 1 / MMC1, Mapper 2 / UxROM, Mapper 3 / CNROM) into this folder!
+#
+# Recommended file names (automatically recognized with custom titles & battery-save flags):
+#   - zelda.nes          (The Legend of Zelda - MMC1 + Battery Save)
+#   - ff1.nes            (Final Fantasy - MMC1 + Battery Save)
+#   - dw1.nes            (Dragon Warrior - MMC1 + Battery Save)
+#   - smb.nes            (Super Mario Bros. - NROM)
+#   - tetris.nes         (Tetris - MMC1)
+#   - contra.nes         (Contra - UxROM)
+#   - castlevania.nes    (Castlevania - UxROM)
+#   - megaman2.nes       (Mega Man 2 - MMC1)
+#   - metroid.nes        (Metroid - MMC1 + Battery Save)
+#   - dk_classics.nes    (Donkey Kong Classics - CNROM)
+#   - pacman.nes         (Pac-Man - NROM)
+#   - galaga.nes         (Galaga - NROM)
+#   - excitebike.nes     (Excitebike - NROM)
+#   - drmario.nes        (Dr. Mario - MMC1)
+#
+# Any other `.nes` file placed in this folder will also be discovered and listed automatically!

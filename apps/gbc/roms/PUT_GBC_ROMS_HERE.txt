@@ -1,0 +1,18 @@
+# Drop your Game Boy (.gb) and Game Boy Color (.gbc) ROM files into this folder!
+# Supported Mappers: ROM Only, MBC1, MBC2, MBC3, and MBC5 (up to 4 MB via demand-paged RAM cache).
+#
+# Recommended file names (automatically recognized with custom titles & battery-save flags):
+#   - zelda_ladx.gbc      (The Legend of Zelda: Link's Awakening DX - MBC5 + Battery Save)
+#   - pokemon_crystal.gbc (Pokemon: Crystal Version - MBC3 + Battery Save)
+#   - dw_1_2.gbc          (Dragon Warrior I & II - MBC5 + Battery Save)
+#   - tetris_dx.gbc       (Tetris DX - MBC1 + Battery Save)
+#   - zelda_ages.gbc      (The Legend of Zelda: Oracle of Ages - MBC5 + Battery Save)
+#   - zelda_seasons.gbc   (The Legend of Zelda: Oracle of Seasons - MBC5 + Battery Save)
+#   - smb_dx.gbc          (Super Mario Bros. Deluxe - MBC5 + Battery Save)
+#   - mario_land.gb       (Super Mario Land - MBC1)
+#   - ff_legend.gb        (The Final Fantasy Legend - MBC2 + Battery Save)
+#   - pokemon_gold.gbc    (Pokemon: Gold Version - MBC3 + Battery Save)
+#   - zelda_la.gb         (The Legend of Zelda: Link's Awakening - MBC1 + Battery Save)
+#   - drmario.gb          (Dr. Mario - ROM)
+#
+# Any other `.gb` or `.gbc` file placed in this folder will also be discovered and listed automatically!
